@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<activityConfig>
+	<sensorRate>20</sensorRate>
+	<recognitionInterval>2</recognitionInterval>
+	<activity name="WALKING">
+        <activityIndex>1</activityIndex>
+    	</activity>
+	<activity name="DRINKING">
+        <activityIndex>2</activityIndex>
+    	</activity>
+	<activity name="TYPING">
+        <activityIndex>3</activityIndex>
+    	</activity>
+	<activity name="EATING">
+        <activityIndex>4</activityIndex>
+    	</activity>
+	<activity name="REMOTE_IN_HAND">
+        <activityIndex>5</activityIndex>
+    	</activity>
+</activityConfig>
