@@ -3,7 +3,7 @@ import time
 import pymongo
 import numpy as np
 import elementtree.ElementTree as ET
-import test5activities as har # this is the model generator for 5 activities
+import activityModeler as har # this is the model generator (right now for 5 activities)
 
 #parse xml config file
 def find_in_tree(tree, node):
