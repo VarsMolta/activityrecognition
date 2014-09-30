@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <activityConfig>
 	<sensorRate>20</sensorRate>
-	<recognitionInterval>2</recognitionInterval>
+	<recognitionInterval>4</recognitionInterval>
+	<overlapWindow>2</overlapWindow>
 	<activity name="WALKING">
         <activityIndex>1</activityIndex>
     	</activity>

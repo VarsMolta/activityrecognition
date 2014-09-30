@@ -25,11 +25,14 @@ except:
 #Parse to find the child nodes
 sensorRate = find_in_tree(root,"sensorRate")
 recognitionInterval = find_in_tree(root,"recognitionInterval")
+overlapWindow = find_in_tree(root,"overlapWindow")
 
 #Activity Detection parameters
 sensorRate = int(sensorRate.text); # in Hz
 recognitionInterval = int(recognitionInterval.text) # seconds
+overlapWindow = int(overlapWindow.text) # seconds
 numSamplesRecognitionInterval = sensorRate*recognitionInterval
+numSamplesRecognitionOverlap = sensorRate*overlapWindow
 print numSamplesRecognitionInterval 
 
 activity_list = []
@@ -86,8 +89,9 @@ cursor = collection.find( {},
                           await_data=True,
                           tailable=True )
 A = np.empty([numSamplesRecognitionInterval,3])
-#B = np.empty([numSamplesRecognitionInterval,3])
+B = np.empty([numSamplesRecognitionInterval,3])
 count = 0;
+pingPong = 0;
 # This will catch ctrl-c and the error thrown if
 # the collection is deleted while this script is
 # running.
@@ -103,20 +107,40 @@ try:
       for entry in cursor:
 	#print entry["accel"]["x"];
       	message = cursor.next()
+
+	A[count] = ([ entry["accel"]["x"], entry["accel"]["y"], entry["accel"]["z"] ])
+	if (pingPong == 0):	
+		if (count >= numSamplesRecognitionOverlap):
+			B[count-numSamplesRecognitionOverlap] = ([ entry["accel"]["x"], entry["accel"]["y"], entry["accel"]["z"] ])
+      
+	else:
+		if (count < numSamplesRecognitionOverlap):		
+			B[count+numSamplesRecognitionOverlap] = ([ entry["accel"]["x"], entry["accel"]["y"], entry["accel"]["z"] ])
+	
+	count = count + 1
+      	#print count
       	if (count == numSamplesRecognitionInterval):
 		count = 0
-	A[count] = ([ entry["accel"]["x"], entry["accel"]["y"], entry["accel"]["z"] ])
-      	#print count
-      	count = count + 1
 
-	# extract the features for activity recognition
-	features = har.getFeatureForTest(A)
+		if (pingPong == 0):
+			# extract the features for activity recognition
+			features = har.getFeatureForTest(A)
+			pingPong = 1
+		else:
+			# extract the features for activity recognition
+			features = har.getFeatureForTest(B)
+			pingPong = 0
+		
+		# predict the activity
+		prediction = har.predictActivity(clf, features)
 
-	# predict the activity
-	prediction = har.predictActivity(clf, features)
-
-	# print the detected activity
-	print activity_list[int(prediction-1)]
+		# send response back to device thru gcm
+		# Note: only the prediction index is sent here (to save bandwidth) 
+		# gcm.SendActivity(prediction)
+		
+		# print the detected activity
+		print activity_list[int(prediction-1)]
+    
     except StopIteration:
       print "MongoDB, why you no block on read?!"
       time.sleep(1)
