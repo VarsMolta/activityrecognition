@@ -2,6 +2,7 @@ import numpy as np
 import scipy
 #from sklearn import svm, cross_validation, tree
 from sklearn import tree
+from sklearn import svm
 import csv
 import StringIO
 import pylab as pl # for plotting
@@ -83,7 +84,7 @@ def getFeatures(walkData, drinkData, typeData, eatData, tvData, startSeconds, st
 		feature = np.vstack([feature,npmcr])
 		return feature
 
-def getModel(feature, numFeatures, numSamples):
+def getModel(feature, numFeatures, numSamples, model):
 	
 		fC1 = []
 		fC2 = []
@@ -151,10 +152,17 @@ def getModel(feature, numFeatures, numSamples):
 		#pl.show()
 		
 		#clf = tree.DecisionTreeClassifier(random_state=22)
-		clf = tree.DecisionTreeClassifier()
-		#print clf.get_params()['random_state']
-		clf = clf.fit(X, Y)
-	
+
+		if (model == 'dtree'):
+			clf = tree.DecisionTreeClassifier()
+			#print clf.get_params()['random_state']
+			clf = clf.fit(X, Y)
+		elif (model == 'svm'):
+			clf = svm.LinearSVC()
+			clf.fit(X, Y)
+		else:
+  			print "Invalid Model Selected!"
+  			sys.exit(0)
 		return clf
 
 
@@ -311,7 +319,7 @@ def getFeatureForTest(activityDataSet):
 		#return fc5
 
 
-def getModel2(): 
+def getModel2(model): 
 	# read input csv files for walking, drinking and typing trained data
 	walk_filename = "walking.csv"
 	walk_rows = readCSV(walk_filename)
@@ -357,7 +365,7 @@ def getModel2():
 	#print "XXXXXX"
 	#print feature
 
-	clf = getModel(feature, numFeatures, numSamples)
+	clf = getModel(feature, numFeatures, numSamples, model)
 	print "READY!!!"
 
 	return clf;

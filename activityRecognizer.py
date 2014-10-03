@@ -46,7 +46,7 @@ for activityName in root.findall('activity'):
 time.sleep(2)
 
 # Decision Tree model
-clf = har.getModel2()
+clf = har.getModel2('svm')
 
 MONGO_SERVER = "127.0.0.1"
 MONGO_DATABASE = "mydbsensor"
