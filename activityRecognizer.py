@@ -4,6 +4,7 @@ import pymongo
 import numpy as np
 import elementtree.ElementTree as ET
 import activityModeler as har # this is the model generator (right now for 5 activities)
+import gcmSender # import the gcm sender file
 
 #parse xml config file
 def find_in_tree(tree, node):
@@ -120,6 +121,7 @@ try:
 	count = count + 1
       	#print count
       	if (count == numSamplesRecognitionInterval):
+		reg_id = entry['deviceId']
 		count = 0
 
 		if (pingPong == 0):
@@ -136,7 +138,7 @@ try:
 
 		# send response back to device thru gcm
 		# Note: only the prediction index is sent here (to save bandwidth) 
-		# gcm.SendActivity(prediction)
+		gcmSender.SendActivity(reg_id, prediction)
 		
 		# print the detected activity
 		print activity_list[int(prediction-1)]
