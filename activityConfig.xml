@@ -1,21 +1,21 @@
 <?xml version="1.0"?>
 <activityConfig>
-	<sensorRate>20</sensorRate>
+	<sensorRate>10</sensorRate>
 	<recognitionInterval>4</recognitionInterval>
 	<overlapWindow>2</overlapWindow>
-	<activity name="WALKING">
+	<activity name="DRINKING">
         <activityIndex>1</activityIndex>
     	</activity>
-	<activity name="DRINKING">
+	<activity name="BICEP_CURL">
         <activityIndex>2</activityIndex>
     	</activity>
-	<activity name="TYPING">
+	<activity name="EATING">
         <activityIndex>3</activityIndex>
     	</activity>
-	<activity name="EATING">
+	<activity name="SHOULDER_PRESS">
         <activityIndex>4</activityIndex>
     	</activity>
-	<activity name="REMOTE_IN_HAND">
+	<activity name="TABLET">
         <activityIndex>5</activityIndex>
     	</activity>
 </activityConfig>

@@ -7,6 +7,7 @@ import csv
 import StringIO
 import pylab as pl # for plotting
 from sklearn.lda import LDA
+from sklearn.cross_validation import cross_val_score
 
 '''
 takes in a filename
@@ -15,10 +16,10 @@ returns a 2D list with the contents of the file
 def readCSV(filename):
 	with open(filename,"rU") as csvfile:
 		rows = []
-		reader = csv.reader(csvfile, delimiter=';')
+		reader = csv.reader(csvfile, delimiter=',')
 		for line in reader:
 			rows.append(line)
-	print "%d rows in %s" % (len(rows), filename)
+	#print "%d rows in %s" % (len(rows), filename)
 	return rows
 
 # mean absolute deviation
@@ -46,16 +47,16 @@ takes in data for different activities
 returns a 2D array of feature vectors for each of the activities
 '''
 def getFeatures(walkData, drinkData, typeData, eatData, tvData, startSeconds, stopSeconds, freqHz, feature, iteration):
-		print startSeconds 
-		print stopSeconds
-		wdata = walkData[startSeconds:stopSeconds:freqHz,1:4:].astype(float)
-		ddata = drinkData[startSeconds:stopSeconds:freqHz,1:4:].astype(float)
-		tdata = typeData[startSeconds:stopSeconds:freqHz,1:4:].astype(float)
-		edata = eatData[startSeconds:stopSeconds:freqHz,1:4:].astype(float)
-		tvdata = tvData[startSeconds:stopSeconds:freqHz,1:4:].astype(float)
+		#print startSeconds 
+		#print stopSeconds
+		wdata = walkData[startSeconds:stopSeconds:freqHz,0:6:].astype(float)
+		ddata = drinkData[startSeconds:stopSeconds:freqHz,0:6:].astype(float)
+		tdata = typeData[startSeconds:stopSeconds:freqHz,0:6:].astype(float)
+		edata = eatData[startSeconds:stopSeconds:freqHz,0:6:].astype(float)
+		tvdata = tvData[startSeconds:stopSeconds:freqHz,0:6:].astype(float)
 	
 		alldata = np.concatenate((wdata, ddata, tdata, edata, tvdata), axis=1)
-		print alldata
+		#print alldata
 		#rows = np.array(data[:,1]).astype(np.float)
 		
 		npmean = np.mean(alldata, axis=0)  # feature 1
@@ -119,8 +120,8 @@ def getModel(feature, numFeatures, numSamples, model):
 		X = np.vstack([X,fC4]);
 		X = np.vstack([X,fC5]);
 		
-		print "Samples vs Feature Matrix"
-		print X;	
+		#print "Samples vs Feature Matrix"
+		#print X;	
 		# insert for loop here
 		#hist, bin_edges = np.histogram(alldata[:,0],bins=10)
 		#print np.cumsum(hist)
@@ -138,9 +139,9 @@ def getModel(feature, numFeatures, numSamples, model):
 		''' Do LDA analysis on this feature set.
 		Code from here: http://scikit-learn.org/stable/auto_examples/decomposition/plot_pca_vs_lda.html
 		'''
-		print "Printing LDA params"
-		print np.shape(X_r2);
-		print (X_r2)
+		#print "Printing LDA params"
+		#print np.shape(X_r2);
+		#print (X_r2)
 		
 		#pl.figure()
 		#for c, i, target_name in zip("rgbyk", [1, 2, 3, 4, 5], target_names):
@@ -160,6 +161,7 @@ def getModel(feature, numFeatures, numSamples, model):
 		elif (model == 'svm'):
 			clf = svm.LinearSVC()
 			clf.fit(X, Y)
+			print cross_val_score(clf, X, Y, cv=10 )
 		else:
   			print "Invalid Model Selected!"
   			sys.exit(0)
@@ -321,23 +323,23 @@ def getFeatureForTest(activityDataSet):
 
 def getModel2(model): 
 	# read input csv files for walking, drinking and typing trained data
-	walk_filename = "walking.csv"
+	walk_filename = "drinkingAccelGyroMoto360_2.txt"
 	walk_rows = readCSV(walk_filename)
 	walkData = np.array(walk_rows)
 	
-	drink_filename = "drinking.csv"
+	drink_filename = "bicepCurlAccelGyroMoto360_2.txt"
 	drink_rows = readCSV(drink_filename)
 	drinkData = np.array(drink_rows)
 	
-	type_filename = "typing.csv"
+	type_filename = "eatingAccelGyroMoto360_2.txt"
 	type_rows = readCSV(type_filename)
 	typeData = np.array(type_rows)
 
-	eat_filename = "eating2.csv"
+	eat_filename = "shoulderPressAccelGyroMoto360_2.txt"
 	eat_rows = readCSV(eat_filename)
 	eatData = np.array(eat_rows)
 	
-	tv_filename = "remoteTV.csv"
+	tv_filename = "tabletAccelGyroMoto360_2.txt"
 	tv_rows = readCSV(tv_filename)
 	tvData = np.array(tv_rows)
 	
@@ -345,16 +347,17 @@ def getModel2(model):
 	feature2 = []
 	feature = []
 	
-	startSeconds = 0;
+	startSeconds = 1;
 	endSeconds = 15;
 	overlap = 2;
 	freqDecimate100 = 2;
 	numSecondsPerCalc = 4;
-	numSamples = 48;
+	numSamples = 140;
 	numFeatures = 7;
+	sensorRate = 20;
 
 	for iteration in range(0,numSamples): 	
-		feature1 = getFeatures(walkData, drinkData, typeData, eatData, tvData, 100*(startSeconds+overlap*iteration), 100*(startSeconds+numSecondsPerCalc+overlap*iteration), freqDecimate100, feature2,0)
+		feature1 = getFeatures(walkData, drinkData, typeData, eatData, tvData, sensorRate*(startSeconds+overlap*iteration), sensorRate*(startSeconds+numSecondsPerCalc+overlap*iteration), freqDecimate100, feature2,0)
 			
 		# don't append if first time thru the loop
 		if iteration == 0:
@@ -366,7 +369,7 @@ def getModel2(model):
 	#print feature
 
 	clf = getModel(feature, numFeatures, numSamples, model)
-	print "READY!!!"
+	#print "READY!!!"
 
 	return clf;
 

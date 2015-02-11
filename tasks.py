@@ -24,8 +24,8 @@ def gen_prime(x):
 # Kick off recognition task
 @app.task(ignore_result=True)
 #@app.task
-def startRecognition(collectionName):
+def startRecognition(collectionName,reg_id):
     #cache.set(do_job.request.id, operation_results)
-    #results = acRecog.startRecognition(collectionName, reg_id)
     results = acRecog.startRecognition(collectionName, reg_id)
+    #results = acRecog.startRecognition(collectionName)
     #return results
